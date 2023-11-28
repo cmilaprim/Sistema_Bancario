@@ -1,48 +1,31 @@
-menu = """
-[d] depositar
-[s] saque
-[e] extrato
-[s] sair
-"""
-saldo = 0
-extrato = ''
-valor_limite = 500
-num_saque = 0
-quantidade_saque_limite = 3
+from banco import Banco
 
-while True:
-    opçao = input(menu)
-    
-    if opçao == 'd':
-        valor = float(input('Infome o valor de saque: R$'))
-        if valor > 0:
-            extrato += f"Depósito: R${valor:.2f}"
-            saldo += valor
-        else:
-            print('Valor incorreto. Erro na operação')
-    elif opçao == 's':
-        valor = float(input('Informe o valor do seu saque: R$'))
+bc = Banco('Banco Prim', 999)
+#cpfs = dict()
+
+for _ in range(7):
+        operacao, *parametros = input().split()
         
-        excedeu_limite = valor > valor_limite
-        excedeu_saldo = valor > saldo
-        excedeu_quantidade_saque = num_saque > quantidade_saque_limite
-        
-        if excedeu_limite:
-            print('Limite de saque excedito. Erro na operação.')
-        elif excedeu_quantidade_saque:
-            print('Quantidade de saques excedito. Erro na oparção.')
-        elif excedeu_saldo:
-            print('Saldo insuficiente. Erro na opração.')
-        elif valor > 0:
-            saldo -= valor
-            num_saque += 1
-            extrato = f'Saque: R${valor:.2f}'
-        else:
-            print('Valor inválido!Operação falhou')
+        if operacao[0] == 'abre_conta':
+            #cpf = parametros[0]
+            bc.abre_conta(parametros[-1], parametros[0])
+            #cpfs[cpf] = nct
             
-    elif opçao == 'e':
-        print('extrato').center()
-        print('Não foram realizadas movimentações' if not extrato else extrato)
-        print(f'\nR${saldo:.2f}')
-    else:
-        break
+        elif operacao[0] == 'deposito':
+            #bc.deposito(cpfs[cpf], float(parametros[2]))
+            cpf = parametros[0]
+            nconta = bc.descobrir_conta(cpf)
+            bc.deposito(nconta, float(parametros[2]))
+            
+        elif operacao[0] == 'transferencia':
+            nconta_origem = bc.descobrir_conta(parametros[0])
+            nconta_destino = bc.descobrir_conta(parametros[1])
+            bc.transferencia(nconta_origem, nconta_destino, float(parametros[-1]))
+            
+        elif operacao[0] == 'saque':
+            cpf = parametros[0]
+            nconta = bc.descobrir_conta(cpf)
+            bc.saque(nconta, float(parametros[-1]))
+            
+for cpf, saldo in bc.relatorio_cpf_saldo():
+    print(cpf, saldo)
